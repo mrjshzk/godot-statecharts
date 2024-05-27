@@ -70,13 +70,12 @@ func _find_chart(parent:Node) -> StateChart:
 ## Runs a transition either immediately or delayed depending on the 
 ## transition settings.
 func _run_transition(transition:Transition):
-	var expr = Expression.new()
-	expr.parse(transition.delay_seconds)
-	assert(expr.execute() is float or expr.execute() is int)
-	if expr.execute() > 0:
+	if transition.delay_seconds > 0:
 		_queue_transition(transition)
 	else:
 		_chart._run_transition(transition, self)
+		
+	
 
 ## Called when the state chart is built.
 func _state_init():
@@ -282,11 +281,8 @@ func _process_transitions(event:StringName, property_change:bool = false) -> boo
 func _queue_transition(transition:Transition):
 	# print("transitioning from " + name + " to " + transition.to.get_concatenated_names() + " in " + str(transition.delay_seconds) + " seconds" )
 	# queue the transition for the delay time (0 means next frame)
-	var expr = Expression.new()
-	expr.parse(transition.delay_seconds)
-	
 	_pending_transition = transition
-	_pending_transition_time = expr.execute()
+	_pending_transition_time = transition.delay_seconds
 	
 	# enable processing when we have a transition
 	set_process(true)
